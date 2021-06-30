@@ -53,6 +53,14 @@ func mean(pixels []Pixel) Pixel {
 	return Pixel{R: r, G: g, B: b}
 }
 
+func assign(pixels []Pixel, clusters [COLORS_NUMBER]Cluster) [COLORS_NUMBER]Cluster {
+	for _, pixel := range pixels {
+		clusters[closestCentroid(pixel, clusters)].members = append(clusters[closestCentroid(pixel, clusters)].members, pixel)
+	}
+
+	return clusters
+}
+
 func initialize(pixels []Pixel) [COLORS_NUMBER]Cluster {
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
@@ -64,9 +72,7 @@ func initialize(pixels []Pixel) [COLORS_NUMBER]Cluster {
 	}
 
 	// get the members of each cluster
-	for _, pixel := range pixels {
-		clusters[closestCentroid(pixel, clusters)].members = append(clusters[closestCentroid(pixel, clusters)].members, pixel)
-	}
+	clusters = assign(pixels, clusters)
 
 	return clusters
 }
@@ -88,9 +94,7 @@ func iterate(clusters [COLORS_NUMBER]Cluster, pixels []Pixel) ([COLORS_NUMBER]Cl
 			clusters[i].members = []Pixel{}
 		}
 
-		for _, pixel := range pixels {
-			clusters[closestCentroid(pixel, clusters)].members = append(clusters[closestCentroid(pixel, clusters)].members, pixel)
-		}
+		clusters = assign(pixels, clusters)
 	}
 
 	return clusters, changed
@@ -98,7 +102,7 @@ func iterate(clusters [COLORS_NUMBER]Cluster, pixels []Pixel) ([COLORS_NUMBER]Cl
 
 func main() {
 	// open image
-	file, _ := os.Open("image.png")
+	file, _ := os.Open("image2.png")
 	img, err := png.Decode(file)
 	if err != nil {
 		log.Fatal(err)
