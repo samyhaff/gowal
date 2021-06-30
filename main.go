@@ -128,6 +128,6 @@ func main() {
 	}
 
 	for _, cluster := range clusters {
-		fmt.Println(cluster.centroid)
+		fmt.Println(fmt.Sprintf("#%02X%02X%02X", cluster.centroid.R, cluster.centroid.G, cluster.centroid.B))
 	}
 }
