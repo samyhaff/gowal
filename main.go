@@ -71,19 +71,40 @@ func initialize(pixels []Pixel) [COLORS_NUMBER]Cluster {
 	return clusters
 }
 
-func iterate(clusters [COLORS_NUMBER]Cluster) ([COLORS_NUMBER]Cluster, bool) {
+func iterate(clusters [COLORS_NUMBER]Cluster, pixels []Pixel) ([COLORS_NUMBER]Cluster, bool) {
 	changed := false
+
+	for i := 0; i < COLORS_NUMBER; i++ {
+		// centroid becomes the mean of the cluster members
+		new_centroid := mean(clusters[i].members)
+		if clusters[i].centroid != new_centroid {
+			changed = true
+		}
+		clusters[i].centroid = new_centroid
+	}
+
+	if changed {
+		for i := 0; i < COLORS_NUMBER; i++ {
+			clusters[i].members = []Pixel{}
+		}
+
+		for _, pixel := range pixels {
+			clusters[closestCentroid(pixel, clusters)].members = append(clusters[closestCentroid(pixel, clusters)].members, pixel)
+		}
+	}
 
 	return clusters, changed
 }
 
 func main() {
+	// open image
 	file, _ := os.Open("image.png")
 	img, err := png.Decode(file)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// read image into array
 	pixels := make([]Pixel, img.Bounds().Max.Y*img.Bounds().Max.X)
 	for y := 0; y < img.Bounds().Max.Y; y++ {
 		for x := 0; x < img.Bounds().Max.X; x++ {
@@ -93,12 +114,16 @@ func main() {
 		}
 	}
 
-	clusters := initialize(pixels)
-	fmt.Println(clusters)
-	fmt.Println(closestCentroid(pixels[0], clusters))
+	// main algorithm
 
-	// changed := true
-	// for changed {
-	// 	clusters, changed = iterate(clusters)
-	// }
+	clusters := initialize(pixels)
+
+	changed := true
+	for changed {
+		clusters, changed = iterate(clusters, pixels)
+	}
+
+	for _, cluster := range clusters {
+		fmt.Println(cluster.centroid)
+	}
 }
