@@ -2,11 +2,16 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 	"image/png"
 	"log"
 	"os"
 )
+
+type Pixel struct {
+	R int
+	G int
+	B int
+}
 
 func main() {
 	file, _ := os.Open("image.png")
@@ -15,14 +20,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	pixels := make([]color.Color, img.Bounds().Max.Y*img.Bounds().Max.X)
+	pixels := make([]Pixel, img.Bounds().Max.Y*img.Bounds().Max.X)
 
 	for y := 0; y < img.Bounds().Max.Y; y++ {
 		for x := 0; x < img.Bounds().Max.X; x++ {
-			color := img.At(x, y)
-			pixels[img.Bounds().Max.X*y+x] = color
+			r, g, b, _ := img.At(x, y).RGBA()
+			pixels[img.Bounds().Max.X*y+x] = Pixel{R: int(r / 257), G: int(g / 257), B: int(b / 257)}
 			// fmt.Printf("%v", color)
 		}
 	}
-	fmt.Println(pixels[:img.Bounds().Max.X])
+	fmt.Println(pixels)
 }
