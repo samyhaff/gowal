@@ -82,8 +82,12 @@ func iterate(clusters [COLORS_NUMBER]Cluster, pixels []Pixel) ([COLORS_NUMBER]Cl
 	changed := false
 
 	for i := 0; i < COLORS_NUMBER; i++ {
+		var new_centroid Pixel
 		// centroid becomes the mean of the cluster members
-		new_centroid := mean(clusters[i].members)
+		if len(clusters[i].members) == 0 {
+			continue
+		}
+		new_centroid = mean(clusters[i].members)
 		if clusters[i].centroid != new_centroid {
 			changed = true
 		}
