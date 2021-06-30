@@ -1,0 +1,7 @@
+#!/bin/sh
+
+[ -z $1 ] && image=$(sxiv ~/Wallpapers/* -bo) || image=$1 
+convert "$image" -resize 25% image.png
+./main image.png | ./toxrdb > ~/.config/colorschemes/wall
+feh --bg-scale "$image"
+theme wall

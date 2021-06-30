@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# TODO apply wallpaper
+# TODO take image as argument
+# TODO add flags
+# TODO display color blocks
+
+echo '#define BACKGROUND #151515\n#define FOREGROUND #FFFFFF' | column -t
+CPT=0
+while read HEXCODE; do
+    printf '#define COLOR%d %s\n' "$CPT" "$HEXCODE"
+    CPT=$(expr $CPT + 1)
+done | column -t
