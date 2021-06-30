@@ -28,6 +28,20 @@ func distance(pixel1, pixel2 Pixel) int {
 		(pixel1.B-pixel2.B)*(pixel1.B-pixel2.B)
 }
 
+func closestCentroid(pixel Pixel, clusters [COLORS_NUMBER]Cluster) int {
+	var min_i int
+	min_dist := distance(pixel, clusters[0].centroid)
+
+	for i := 0; i < COLORS_NUMBER; i++ {
+		dist := distance(pixel, clusters[i].centroid)
+		if dist < min_dist {
+			min_dist = dist
+			min_i = i
+		}
+	}
+	return min_i
+}
+
 func mean(pixels []Pixel) Pixel {
 	r, g, b := 0, 0, 0
 	for _, pixel := range pixels {
@@ -39,14 +53,28 @@ func mean(pixels []Pixel) Pixel {
 	return Pixel{R: r, G: g, B: b}
 }
 
-func initialize(pixels []Pixel) [COLORS_NUMBER]Pixel {
+func initialize(pixels []Pixel) [COLORS_NUMBER]Cluster {
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
-	var centroids [COLORS_NUMBER]Pixel
+
+	var clusters [COLORS_NUMBER]Cluster
+	// start by choosing random centroids
 	for i := 0; i < COLORS_NUMBER; i++ {
-		centroids[i] = pixels[r.Intn(len(pixels))]
+		clusters[i] = Cluster{centroid: pixels[r.Intn(len(pixels))], members: []Pixel{}}
 	}
-	return centroids
+
+	// get the members of each cluster
+	for _, pixel := range pixels {
+		clusters[closestCentroid(pixel, clusters)].members = append(clusters[closestCentroid(pixel, clusters)].members, pixel)
+	}
+
+	return clusters
+}
+
+func iterate(clusters [COLORS_NUMBER]Cluster) ([COLORS_NUMBER]Cluster, bool) {
+	changed := false
+
+	return clusters, changed
 }
 
 func main() {
@@ -57,7 +85,6 @@ func main() {
 	}
 
 	pixels := make([]Pixel, img.Bounds().Max.Y*img.Bounds().Max.X)
-
 	for y := 0; y < img.Bounds().Max.Y; y++ {
 		for x := 0; x < img.Bounds().Max.X; x++ {
 			r, g, b, _ := img.At(x, y).RGBA()
@@ -65,5 +92,13 @@ func main() {
 			// fmt.Printf("%v", color)
 		}
 	}
-	fmt.Println(pixels)
+
+	clusters := initialize(pixels)
+	fmt.Println(clusters)
+	fmt.Println(closestCentroid(pixels[0], clusters))
+
+	// changed := true
+	// for changed {
+	// 	clusters, changed = iterate(clusters)
+	// }
 }
