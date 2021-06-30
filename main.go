@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"image/png"
 	"log"
@@ -101,8 +102,15 @@ func iterate(clusters [COLORS_NUMBER]Cluster, pixels []Pixel) ([COLORS_NUMBER]Cl
 }
 
 func main() {
+	// read arguments
+	if len(os.Args) < 2 {
+		err := errors.New("No image was given")
+		log.Fatal(err)
+	}
+	path := os.Args[1]
+
 	// open image
-	file, _ := os.Open("image2.png")
+	file, _ := os.Open(path)
 	img, err := png.Decode(file)
 	if err != nil {
 		log.Fatal(err)
