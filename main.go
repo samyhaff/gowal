@@ -13,6 +13,12 @@ type Pixel struct {
 	B int
 }
 
+func distance(pixel1, pixel2 Pixel) int {
+	return (pixel1.R-pixel2.R)*(pixel1.R-pixel2.R) +
+		(pixel1.G-pixel2.G)*(pixel1.G-pixel2.G) +
+		(pixel1.B-pixel2.B)*(pixel1.B-pixel2.B)
+}
+
 func main() {
 	file, _ := os.Open("image.png")
 	img, err := png.Decode(file)
